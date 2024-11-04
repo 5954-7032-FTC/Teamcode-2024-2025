@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -23,7 +21,7 @@ public class RobotDevices {
     public DcMotor [] wheels;
     public DcMotor [] lifters;
     public DcMotor hang0,hang1;
-    public IMU imunew;
+    public IMU imu;
     public CRServo[] intakeServos;
     public CRServo intakeLift;
     public CRServo intakeTilt;
@@ -56,7 +54,7 @@ public class RobotDevices {
         };
 
         // imu setup
-        imunew = hardwareMap.get(IMU.class, "imu");
+        imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters imuParameters;
         imuParameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
@@ -64,7 +62,7 @@ public class RobotDevices {
                         RevHubOrientationOnRobot.UsbFacingDirection.UP
                 )
         );
-        imunew.initialize(imuParameters);
+        imu.initialize(imuParameters);
 
 
         lifters = new DcMotor[]{

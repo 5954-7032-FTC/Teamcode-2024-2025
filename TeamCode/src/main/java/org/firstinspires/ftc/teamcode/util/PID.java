@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.util;
 public interface PID {
     double update(double current);
 
-    public void reset(double target);
-    public double getPTerm(double current);
+    void reset(double target);
+    double getPTerm(double current);
 
-    public double getITerm(double current);
+    double getITerm(double current);
 
-    public double getDTerm(double current);
+    double getDTerm(double current);
 }

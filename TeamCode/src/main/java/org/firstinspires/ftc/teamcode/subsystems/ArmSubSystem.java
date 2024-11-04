@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.util.TeamColor;
+
 
 public class ArmSubSystem implements SubSystem {
     private final DcMotor[]  _liftMotors;
@@ -26,7 +26,6 @@ public class ArmSubSystem implements SubSystem {
 
     private final DistanceSensor _distanceSensor;
 
-    private TeamColor _teamColor;
 
     public ArmSubSystem(DcMotor [] liftMotors,
                         CRServo [] intakeServos,
@@ -57,10 +56,7 @@ public class ArmSubSystem implements SubSystem {
         _liftMotors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void setColorToLookFor(TeamColor teamColor) {
-        this._teamColor = teamColor;
 
-    }
 
     public double getDistanceSensor() {
         return _distanceSensor.getDistance(DistanceUnit.MM);
@@ -93,16 +89,6 @@ public class ArmSubSystem implements SubSystem {
 
     public boolean lowerIsPressed() {
         return _lowerLimit.isPressed();
-    }
-
-    public void moveArmMillis(boolean up,long millis) {
-        moveArm(up?-1:1);
-        try {
-            Thread.sleep(millis);
-        }
-        catch (InterruptedException ignored) {
-        }
-        moveArm(0);
     }
 
     public void moveArm(double power) {

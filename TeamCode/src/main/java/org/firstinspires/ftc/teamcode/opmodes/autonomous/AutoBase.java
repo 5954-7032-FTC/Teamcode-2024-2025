@@ -12,21 +12,14 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveParameters;
 import org.firstinspires.ftc.teamcode.util.Constants;
 import org.firstinspires.ftc.teamcode.util.RobotDevices;
 
-public class AutoBase extends LinearOpMode {
+public abstract class AutoBase extends LinearOpMode {
 
     protected RobotDevices robotDevices;
-
     protected MecanumDriveByGyro _move;
     protected ArmSubSystem _armSubSystem;
-
-
     protected Servo _armRelease;
-
     protected DcMotor _hang0,_hang1;
-    protected Telemetry.Item T_pixelHold;
-    protected Telemetry.Item T_sensorServos;
     protected Telemetry.Item T_IMU;
-
     protected ImuDevice _imu;
 
 
@@ -35,8 +28,7 @@ public class AutoBase extends LinearOpMode {
 
         robotDevices = RobotDevices.getDevices(hardwareMap);
 
-
-        _imu =  new ImuDevice(robotDevices.imunew);
+        _imu =  new ImuDevice(robotDevices.imu);
         T_IMU = telemetry.addData("IMU", "(Yaw:(%f)",
                 _imu.getHeading()
         );
@@ -46,7 +38,7 @@ public class AutoBase extends LinearOpMode {
         driveParameters.ENCODER_WHEELS = new int[]{0, 1, 2, 3};
         driveParameters.REVERSED_WHEELS = new int[]{2, 3};
         driveParameters.telemetry = telemetry;
-        _move = new MecanumDriveByGyro(driveParameters, new ImuDevice(robotDevices.imunew));
+        _move = new MecanumDriveByGyro(driveParameters, new ImuDevice(robotDevices.imu));
         _move.setFixHeadingToZero();
 
         _move.resetHeading();
@@ -62,36 +54,15 @@ public class AutoBase extends LinearOpMode {
         _move.driveInit();
     }
 
-    protected enum Direction {
-        RIGHT,LEFT
-    }
-
-    protected Direction direction;
-    public void moveDirection(double distanceInches) {
-        switch (direction) {
-            case RIGHT:
-                driveRight(distanceInches);
-                break;
-            case LEFT:
-                driveLeft(distanceInches);
-                break;
-        }
-    }
-    public void moveAntiDirection(double distanceInches) {
-        switch (direction) {
-            case LEFT:
-                driveRight(distanceInches);
-                break;
-            case RIGHT:
-                driveLeft(distanceInches);
-                break;
-        }
-    }
-
     @Override
     public void runOpMode() throws InterruptedException {
-    //do nothing here
+        initRobot();
+        waitForStart();
+        doAuto();
     }
+
+
+    public abstract void doAuto();
 
     public void pauseMillis(long millis) {
         try {
@@ -103,21 +74,6 @@ public class AutoBase extends LinearOpMode {
 
     public void pauseSeconds(int seconds) {
         pauseMillis((long)seconds * 1000);
-    }
-
-    public void driveForward(double distanceInches) {
-;
-        _move.driveForward(distanceInches*Constants.Y_DISTANCE_RATIO);
-
-        T_IMU.setValue(_imu.getHeading());
-        telemetry.update();
-    }
-
-    public void driveLeft(double distanceInches) {
-        _move.driveLeft(distanceInches*Constants.X_DISTANCE_RATIO);
-
-        T_IMU.setValue(_imu.getHeading());
-        telemetry.update();
     }
 
     public void driveReverse(double distanceInches) {
@@ -134,5 +90,80 @@ public class AutoBase extends LinearOpMode {
         telemetry.update();
     }
 
+    public void driveForward(double distanceInches) {
+        _move.driveForward(distanceInches*Constants.Y_DISTANCE_RATIO);
+
+        T_IMU.setValue(_imu.getHeading());
+        telemetry.update();
+    }
+
+    public void driveLeft(double distanceInches) {
+        _move.driveLeft(distanceInches*Constants.X_DISTANCE_RATIO);
+
+        T_IMU.setValue(_imu.getHeading());
+        telemetry.update();
+    }
+
+
+    public void placeSample() {
+        driveForward(2);               // move from wall
+        releaseArm();                 // release the arm
+        moveHangToRelativePosition(Constants.HANG_MOVE_DISTANCE);  // puts it at top
+        //moveArmToTop();
+        moveArmUpToRelativePosition(Constants.SPECIMEN_PREPARE_POSITION);   // position for placement
+        driveForward(9);              // drive forward
+        moveArmDownToRelativePosition(Constants.SPECIMEN_PLACEMENT_POSITION_END);  // place specimen
+        driveReverse(4);            // clear submersible
+        moveArmToBottom();
+    }
+
+    protected void releaseArm() {
+        _armRelease.setPosition(1);
+    }
+
+
+    protected void moveArmUpToRelativePosition(double distance) {
+        double start_pos = _armSubSystem.getArmPosition0();
+        while (_armSubSystem.getArmPosition0() > start_pos +distance)
+            _armSubSystem.moveArm(1.0);
+        _armSubSystem.moveArm(0);
+
+    }
+    protected void moveArmDownToRelativePosition(double distance) {
+        double start_pos = _armSubSystem.getArmPosition0();
+        while (_armSubSystem.getArmPosition0() < start_pos +distance)
+            _armSubSystem.moveArm(-1.0);
+        _armSubSystem.moveArm(0);
+
+    }
+    protected void moveArmToRelativePosition(double distance) {
+        double start_pos = _armSubSystem.getArmPosition0();
+        while (_armSubSystem.getArmPosition0() < start_pos +distance)
+            _armSubSystem.moveArm(-1);
+        _armSubSystem.moveArm(0);
+    }
+
+    protected void moveArmToTop() {
+        while (!_armSubSystem.upperIsPressed())
+            _armSubSystem.moveArm(1);
+        _armSubSystem.moveArm(0);
+    }
+
+    protected void moveArmToBottom() {
+        while (!_armSubSystem.lowerIsPressed()) {
+            _armSubSystem.moveArm(-1);
+        }
+        _armSubSystem.moveArm(0);
+    }
+
+    protected void moveHangToRelativePosition(double distance) {
+        double start = _hang0.getCurrentPosition();
+        while (_hang0.getCurrentPosition() < start +distance ) {
+            _hang1.setPower(-1);
+            _hang0.setPower(1);
+        }
+        _hang0.setPower(0);
+        _hang1.setPower(0);
+    }
 
 }

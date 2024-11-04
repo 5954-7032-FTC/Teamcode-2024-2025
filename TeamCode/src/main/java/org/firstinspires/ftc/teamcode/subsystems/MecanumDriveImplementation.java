@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import android.view.textclassifier.TextClassifierEvent;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
@@ -12,7 +10,7 @@ import org.firstinspires.ftc.teamcode.util.IntVector2d;
 import org.firstinspires.ftc.teamcode.util.Pose2D;
 import org.firstinspires.ftc.teamcode.util.WheelPositions;
 
-public class MecanumDriveSubsystemImpl implements MecanumDrive {
+public class MecanumDriveImplementation implements MecanumDrive {
 
 
     protected DcMotor [] _motors;
@@ -31,7 +29,7 @@ public class MecanumDriveSubsystemImpl implements MecanumDrive {
 
     protected boolean _clampAngle = false;
 
-    public MecanumDriveSubsystemImpl(MecanumDriveParameters parameters) {
+    public MecanumDriveImplementation(MecanumDriveParameters parameters) {
         init(parameters.motors,parameters.telemetry,parameters.FREE_WHEELS,parameters.ENCODER_WHEELS,parameters.REVERSED_WHEELS,parameters.clampAngle);
     }
 
@@ -75,49 +73,9 @@ public class MecanumDriveSubsystemImpl implements MecanumDrive {
                 rotate);
     }
 
-    public double clampAngle(double angle) {
-        // Define cardinal target angles
-        double[] targetAngles = {0, Math.PI / 2, Math.PI, 3 * Math.PI / 2};
-        // Define diagonal angles with dead zones
-        double[] diagonalAngles = {Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4, 7 * Math.PI / 4};
-
-        // Set dead zone threshold to 10 degrees in radians
-        double deadZoneThreshold = Constants.DEAD_ZONE_CLAMP_ANGLE;
-
-        // Check if the angle is within any of the dead zones
-        for (double diagonal : diagonalAngles) {
-            if (Math.abs(angle - diagonal) <= deadZoneThreshold) {
-                // Angle is in the dead zone; return NaN or a similar indicator
-                return Double.NaN;
-            }
-        }
-
-        // If not in dead zone, find the closest cardinal angle
-        double closestAngle = targetAngles[0];
-        double minDistance = Math.abs(angle - targetAngles[0]);
-
-        for (double target : targetAngles) {
-            double distance = Math.abs(angle - target);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestAngle = target;
-            }
-        }
-
-        return closestAngle;
-    }
-
-
     @Override
     public void movePolar(double power, double angle, double rotate) {
 
-        if (0==1) {
-            angle = clampAngle(angle);
-            if (Double.isNaN(angle)) {
-                angle=0;
-                power=0;
-            }
-        }
         angle -= Constants.PI_OVER4;
         rotate *= Constants.ROTATION_RATE;
         double sine  = Math.sin(angle);
@@ -225,7 +183,7 @@ public class MecanumDriveSubsystemImpl implements MecanumDrive {
 
 
     protected void setReverseWheels(int [] wheels) {
-        if (wheels != null && wheels.length != 0)
+        if (wheels != null)
             for (int wheel : wheels)
                 _motors[wheel].setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -240,20 +198,20 @@ public class MecanumDriveSubsystemImpl implements MecanumDrive {
     }
 
     protected void setRunMode(int [] wheels, DcMotor.RunMode mode) {
-        if (wheels != null && wheels.length != 0)
+        if (wheels != null)
             for (int wheel : wheels)   // for (int wheel =0; wheel< wheels.length; wheel++)
                 _motors[wheel].setMode(mode);
     }
 
     public void setZeroPowerBrake(int [] wheels) {
-        if (wheels != null && wheels.length != 0)
+        if (wheels != null)
             for (int wheel : wheels)
                 _motors[wheel].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
 
     public void setZeroPowerCoast(int[] wheels) {
-        if (wheels != null && wheels.length !=0)
+        if (wheels != null)
             for (int wheel : wheels)
                 _motors[wheel].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
@@ -267,14 +225,4 @@ public class MecanumDriveSubsystemImpl implements MecanumDrive {
     }
 
 
-    @Override
-    public double getSpeedForward() {
-
-        double value=0.0;
-        double [] speeds = readSpeeds();
-        for (double wheelSpeed: speeds) {
-            value +=wheelSpeed;
-        }
-        return value/4;
-    }
 }

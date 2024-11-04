@@ -8,24 +8,24 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.opmodes.teleop.ThreadedTeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubSystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
-//import org.firstinspires.ftc.teamcode.util.Debounce;
-//import org.firstinspires.ftc.teamcode.util.MotorRampProfile;
 
 public class ArmControlThread extends RobotThread {
 
-    //private final MotorRampProfile _Joy2Y;  //_Joy2X
-    private final Telemetry _telemetry;
     private final ArmSubSystem _armSubSystem;
     private final Gamepad _gamepad;
+    private final Telemetry.Item _T_colorRed;
+    private final Telemetry.Item _T_colorBlue;
+    private final Telemetry.Item _T_colorGreen;
+    private final Telemetry.Item _T_distance;
+    private final Telemetry.Item _T_state;
+    private final Telemetry.Item _T_colorDetected;
+    private final Telemetry.Item _T_armPosition0;
+    private final Telemetry.Item _T_armPosition1;
 
-    //private final Debounce _buttonA;
-
-    //private Telemetry.Item _T_Intake_Speed;
-    private Telemetry.Item _T_colorRed, _T_colorBlue, _T_colorGreen;
-    private Telemetry.Item _T_distance,_T_state,_T_colorDetected;
-    private Telemetry.Item _T_armPosition0,_T_armPosition1;
+    private final ThreadedTeleOp.Color _color;
 
 
     public ArmControlThread(Gamepad gamepad, Telemetry telemetry,
@@ -36,25 +36,25 @@ public class ArmControlThread extends RobotThread {
                             TouchSensor upperLift,
                             TouchSensor lowerLift,
                             ColorSensor colorSensor,
-                            DistanceSensor distanceSensor
-                            ) {
-        _armSubSystem = new ArmSubSystem(liftMotors,intake,intakeLift,intakeTilt, upperLift, lowerLift,colorSensor,distanceSensor);
+                            DistanceSensor distanceSensor,
+                            ThreadedTeleOp.Color color) {
+        _armSubSystem = new ArmSubSystem(liftMotors,intake,intakeLift,intakeTilt,
+                                         upperLift, lowerLift,colorSensor,distanceSensor);
 
         _gamepad = gamepad;
 
-        _telemetry = telemetry;
+        //private final MotorRampProfile _Joy2Y;  //_Joy2X
+        _color = color;
 
-        //_T_Intake_Speed = _telemetry.addData("IntakeSpeed",0.0);
 
-        //_buttonA = new Debounce(150);
-        _T_colorRed = _telemetry.addData("COLOR_R", 0.0);
-        _T_colorGreen = _telemetry.addData("COLOR_G", 0.0);
-        _T_colorBlue = _telemetry.addData("COLOR_B", 0.0);
-        _T_distance = _telemetry.addData("DISTANCE", 0.0);
-        _T_state = _telemetry.addData("State", "EMPTY");
-        _T_colorDetected = _telemetry.addData("Block", "NONE");
-        _T_armPosition1 = _telemetry.addData("ArmPos1", 0.0);
-        _T_armPosition0 = _telemetry.addData("ArmPos0", 0.0);
+        _T_colorRed = telemetry.addData("COLOR_R", 0.0);
+        _T_colorGreen = telemetry.addData("COLOR_G", 0.0);
+        _T_colorBlue = telemetry.addData("COLOR_B", 0.0);
+        _T_distance = telemetry.addData("DISTANCE", 0.0);
+        _T_state = telemetry.addData("State", "EMPTY");
+        _T_colorDetected = telemetry.addData("Block", "NONE");
+        _T_armPosition1 = telemetry.addData("ArmPos1", 0.0);
+        _T_armPosition0 = telemetry.addData("ArmPos0", 0.0);
     }
 
 
@@ -108,22 +108,24 @@ public class ArmControlThread extends RobotThread {
             else {
                 _armSubSystem.moveIntakeLift(0);
             }
-            /*
-            if ( Math.abs(_gamepad.left_stick_x) > Constants.armControlDeadzone) {
-                _armSubSystem.moveIntakeLift(_gamepad.left_stick_x);
-            }
-            else {
-                _armSubSystem.moveIntakeLift(0);
-            }
-            */
+
 
             // lift tilt
+
+            if (_gamepad.left_stick_y > 0.8)
+                _armSubSystem.moveIntakeTilt(-0.8);
+            else if (_gamepad.left_stick_y < -0.8)
+                _armSubSystem.moveIntakeTilt(0.8);
+            else
+                _armSubSystem.moveIntakeTilt(-_gamepad.left_stick_y);
+            /*
             if ( Math.abs(_gamepad.left_stick_y) >Constants.armControlDeadzone) {
                 _armSubSystem.moveIntakeTilt(-_gamepad.left_stick_y);
             }
             else {
                 _armSubSystem.moveIntakeTilt(0);
             }
+             */
 
 
 
@@ -187,7 +189,11 @@ public class ArmControlThread extends RobotThread {
 
 
     private boolean getColor() {
-        return isBlue() || isYellow();
+        if (_color == ThreadedTeleOp.Color.BLUE)
+            return isBlue() || isYellow();
+        if (_color == ThreadedTeleOp.Color.RED)
+            return isBlue() || isYellow();
+        return false;
     }
     private void do_triggers() {
         if (_gamepad.right_trigger > .2) {

@@ -6,19 +6,19 @@ public class IntVector2d {
         _x = x;
         _y = y;
     }
-    public int getX() {return _x;};
-    public int getY() {return _y;};
+    public int getX() {return _x;}
+    public int getY() {return _y;}
     public IntVector2d add(IntVector2d v) {
         return sum(this,v);
     }
 
     public static IntVector2d add ( IntVector2d ... values) {
-        int newx=0, newy=0;
-        for (int i=0; i<values.length; i++) {
-            newx += values[i]._x;
-            newy += values[i]._y;
+        int newX=0, newY=0;
+        for (IntVector2d value : values) {
+            newX += value._x;
+            newY += value._y;
         }
-        return new IntVector2d(newx,newy);
+        return new IntVector2d(newX,newY);
 
     }
 

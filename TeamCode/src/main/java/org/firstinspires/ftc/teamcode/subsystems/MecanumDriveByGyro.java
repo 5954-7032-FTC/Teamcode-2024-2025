@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -8,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
-public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements DriveRobot, Gyro {
+public class MecanumDriveByGyro extends MecanumDriveImplementation implements DriveRobot, Gyro {
 
     //int [] FORWARD_VALUES, REVERSE_VALUES, LATERAL_LEFT_VALUES, LATERAL_RIGHT_VALUES, ROTATE_VALUES;
 
@@ -34,33 +33,25 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
         Orientation orientation = imu.getOrientation();
         double deltaAngle = orientation.firstAngle - _lastAngles.firstAngle;
         if (deltaAngle > 180) deltaAngle -= 360;
-        if (deltaAngle<=-180) deltaAngle += 360;
+        if (deltaAngle <= -180) deltaAngle += 360;
 
         _currentAngle += deltaAngle;
-        _lastAngles =  orientation;
+        _lastAngles = orientation;
         _telemetry.addData("currentGyroZ", orientation.firstAngle);
         return _currentAngle;
     }
 
     @Override
     public void turn(double degrees) {
-        resetAngle();
-        double error = degrees;
-        while (Math.abs(error) > 2) {
-            double motorPower = (error<0)?-0.3:0.3;
-            // make it turn!
-            error = degrees - getAngle();
-            _telemetry.addData("error", error);
-        }
-        //stop the motors
+
     }
 
     @Override
     public void turnTo(double degrees) {
         Orientation orientation = imu.getOrientation();
         double error = degrees - orientation.firstAngle;
-        if (error>180) error -=360;
-        if (error<=-180) error +=360;
+        if (error > 180) error -= 360;
+        if (error <= -180) error += 360;
         turn(error);
     }
 
@@ -70,29 +61,29 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
     }
 
 
-
-
     public MecanumDriveByGyro(MecanumDriveParameters parameters, ImuDevice imu) {
         super(parameters);
         //init();
         this.imu = imu;
         imu.resetHeading();
 
-        T_angle = _telemetry.addData("Heading","");
+        T_angle = _telemetry.addData("Heading", "");
     }
 
 
     @Override
     public void outputTelemetry(org.firstinspires.ftc.teamcode.subsystems.TelemetryTypes type) {
         super.outputTelemetry(type);
-        /*if (type == org.firstinspires.ftc.teamcode.subsystems.TelemetryTypes.HEADING) {
-            T_angle.setValue(getAngle());
-        }
-        else {
-            super.outputTelemetry(type);
-        }
+    }
 
-         */
+    @Override
+    public void driveReverse(double distance) {
+        driveRobot(distance, Constants.REVERSE_VALUES);
+    }
+
+    @Override
+    public void driveRight(double distance) {
+        driveRobot(distance, Constants.LATERAL_RIGHT_VALUES);
     }
 
     @Override
@@ -105,34 +96,26 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
         driveRobot(distance, Constants.LATERAL_LEFT_VALUES);
     }
 
-    @Override
-    public void driveReverse(double distance) {
-        driveRobot(distance, Constants.REVERSE_VALUES);
-    }
-
-    @Override
-    public void driveRight(double distance) { driveRobot(distance, Constants.LATERAL_RIGHT_VALUES);}
-
     public void driveInit() {
-       // setRunMode(_ENCODER_WHEELS, DcMotor.RunMode.RUN_TO_POSITION);
+        // setRunMode(_ENCODER_WHEELS, DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void driveRobot(double inches, int [] direction) {
+    public void driveRobot(double inches, int[] direction) {
         // Determine new target position, and pass to motor controller
         int moveCounts = moveCounts(inches);
-        int [] targets = setTargetPositions(moveCounts, direction);
+        int[] targets = setTargetPositions(moveCounts, direction);
 
         //setRunMode(_ENCODER_WHEELS, DcMotor.RunMode.RUN_TO_POSITION);
         // Set the required driving speed  (must be positive? (nope) for RUN_TO_POSITION)
         // Start driving straight, and then enter the control loop
 
-        moveRobotDirection(Constants.DRIVE_SPEED, 0,direction);
+        moveRobotDirection(Constants.DRIVE_SPEED, 0, direction);
 
-        targetHeading = fixHeadingToZero?0.0:imu.getHeading();
+        targetHeading = fixHeadingToZero ? 0.0 : imu.getHeading();
 
         // keep looping while we are still active, and BOTH motors are running.
         //while (leftIsBusy() && rightIsBusy()) {
-        while (!checkTargetReached(targets, Constants.MecanumDrive.POSITION_TOLERENCE)) {
+        while (!checkTargetReached(targets, Constants.MecanumDrive.POSITION_TOLERANCE)) {
 
             // Determine required steering to keep on heading
             turnSpeed = direction[4] * getSteeringCorrection(robotHeading, Constants.P_DRIVE_GAIN);
@@ -144,11 +127,10 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
 
         // Stop all motion & Turn off RUN_TO_POSITION
         stopRobot();
-        //moveRobotDirection(0, 0, Constants.FORWARD_VALUES);
-        //setRunMode(_ENCODER_WHEELS, DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     double targetHeading;
+
     @Override
     public double getSteeringCorrection(double desiredHeading, double proportionalGain) {
         imu.getHeading();
@@ -165,7 +147,7 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
         //headingError %= 360;
 
         // Normalize the error to be within +/- 180 degrees
-        while (headingError > 180)  headingError -= 360;
+        while (headingError > 180) headingError -= 360;
         while (headingError <= -180) headingError += 360;
 
 
@@ -185,35 +167,29 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
             // Clip the speed to the maximum permitted value.
             turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
             // Pivot in place by applying the turning correction
-            moveRobotDirection(0, turnSpeed,Constants.FORWARD_VALUES);
+            moveRobotDirection(0, turnSpeed, Constants.REVERSE_VALUES);
         }
         // Stop all motion;
-       stopRobot();
+        stopRobot();
     }
 
-/*    public boolean leftIsBusy() {  // return true if either is busy.
-        return (_motors[1].isBusy() || _motors[3].isBusy());
-    }
-
-
- */
     public int moveCounts(double distance) {
-        return (int)(distance * Constants.COUNTS_PER_INCH_FORWARD);
+        return (int) (distance * Constants.COUNTS_PER_INCH_FORWARD);
     }
 
     public void stopRobot() {
-        setMotorSpeeds(new double[] {0.0,0.0,0.0,0.0});
+        setMotorSpeeds(new double[]{0.0, 0.0, 0.0, 0.0});
     }
 
-    public void moveRobotDirection(double power, double rotate, int [] direction) {
+    public void moveRobotDirection(double power, double rotate, int[] direction) {
         driveSpeed = power;
         turnSpeed = rotate;
         rotate *= direction[4];
-        double [] wheelSpeeds = {
-                direction[0]*power - rotate,   // Front Right
-                direction[1]*power - rotate, // Rear Right
-                direction[2]*power + rotate,   // Rear Left
-                direction[3]*power + rotate  // Front Left
+        double[] wheelSpeeds = {
+                direction[0] * power - rotate,   // Front Right
+                direction[1] * power - rotate, // Rear Right
+                direction[2] * power + rotate,   // Rear Left
+                direction[3] * power + rotate  // Front Left
         };
         setMotorSpeeds(wheelSpeeds);
         outputTelemetry(TelemetryTypes.WHEEL_POSITIONS);
@@ -224,80 +200,32 @@ public class MecanumDriveByGyro extends MecanumDriveSubsystemImpl implements Dri
     public void resetHeading() {
         // Save a new heading offset equal to the current raw heading.
         imu.resetHeading();
-        robotHeading = 0;    }
-
-/*    public boolean rightIsBusy() {
-        return (_motors[0].isBusy() || _motors[2].isBusy());
+        robotHeading = 0;
     }
 
-
- */
-    public boolean checkTargetReached(int [] targets, int tolerance) {
-        for (int i=0; i< _ENCODER_WHEELS.length; i++) {
-            if (Math.abs(_motors[i].getCurrentPosition() - targets[i]) <= tolerance ) return true;
+    public boolean checkTargetReached(int[] targets, int tolerance) {
+        for (int i = 0; i < _ENCODER_WHEELS.length; i++) {
+            if (Math.abs(_motors[i].getCurrentPosition() - targets[i]) <= tolerance) return true;
         }
         return false;
     }
 
-    public int rotateCounts(double degrees) {
-        return (int)Math.round((degrees * Constants.COUNTS_PER_ROTATE)/360);
-    }
-
-    public int [] setTargetPositions(int target, int [] directions) {
-        int [] targets = new int[4];
-        for (int i=0; i<_ENCODER_WHEELS.length; i++) {
-            targets[i]=_motors[i].getCurrentPosition() + target * directions[i];
+    public int[] setTargetPositions(int target, int[] directions) {
+        int[] targets = new int[4];
+        for (int i = 0; i < _ENCODER_WHEELS.length; i++) {
+            targets[i] = _motors[i].getCurrentPosition() + target * directions[i];
             _motors[i].setTargetPosition(targets[i]);
         }
         return targets;
     }
-/*
-    public void turnToHeading(double maxTurnSpeed, double heading) {
 
-        int loop_count=0;
-
-        // Run getSteeringCorrection() once to pre-calculate the current error
-        getSteeringCorrection(heading, Constants.P_DRIVE_GAIN);
-
-        // keep looping while we are still active, and not on heading.
-        while ( (loop_count++ < 10) && (Math.abs(headingError) > Constants.HEADING_THRESHOLD) ) {
-            // Determine required steering to keep on heading
-            turnSpeed = getSteeringCorrection(heading, Constants.P_TURN_GAIN);
-
-            // Clip the speed to the maximum permitted value.
-            turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
-
-            // Pivot in place by applying the turning correction
-            moveRobotDirection(0, turnSpeed, Constants.FORWARD_VALUES);
-        }
-
-        // Stop all motion;
-        moveRobotDirection(0, 0, Constants.FORWARD_VALUES);
-    }
-
- */
 
     // CCW == positive degrees
     // CW == negative degrees
-/*    public void turnRobot(double degrees) {
-// Determine new target position, and pass to motor controller
 
-        int moveCounts = rotateCounts(degrees);
-
-        setTargetPositions(moveCounts, Constants.ROTATE_VALUES);
-        setRunMode(_ENCODER_WHEELS, DcMotor.RunMode.RUN_TO_POSITION);
-        // Set the required driving speed  (must be positive? (nope) for RUN_TO_POSITION)
-        // Start driving straight, and then enter the control loop
-        moveRobotDirection(Constants.DRIVE_SPEED, 0,Constants.ROTATE_VALUES);
-        // keep looping while we are still active, and motors are running.
-        do {} while (leftIsBusy() && rightIsBusy());
-        moveRobotDirection(0, 0, Constants.FORWARD_VALUES);
-        setRunMode(_ENCODER_WHEELS, DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-*/
 
     public void setFixHeadingToZero() {
-        fixHeadingToZero =  true;
+        fixHeadingToZero = true;
     }
 
 }

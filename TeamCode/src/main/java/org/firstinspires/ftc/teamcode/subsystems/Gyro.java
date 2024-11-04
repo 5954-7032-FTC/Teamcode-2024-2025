@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import org.firstinspires.ftc.teamcode.subsystems.SubSystem;
-
 public interface Gyro extends SubSystem {
     void resetAngle();
 

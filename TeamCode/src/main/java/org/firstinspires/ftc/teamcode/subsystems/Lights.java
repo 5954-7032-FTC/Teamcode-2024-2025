@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.subsystems.SubSystem;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,7 +33,7 @@ public abstract class Lights implements SubSystem {
 
     public void blinkEvery(long millis) {
         blink_timer = new Timer();
-        blink_timer.scheduleAtFixedRate(new TimerTask() {
+        blink_timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 blinkOnce(millis);

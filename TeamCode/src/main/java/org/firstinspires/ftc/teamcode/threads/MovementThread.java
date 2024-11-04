@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.threads;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -9,21 +8,20 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.util.Constants;
 import org.firstinspires.ftc.teamcode.util.MotorRampProfile;
-import org.firstinspires.ftc.teamcode.util.RobotDevices;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
 
 public class MovementThread extends RobotThread {
 
-    private Gamepad _gamepad;
-    private MecanumDrive _drive;
+    private final Gamepad _gamepad;
+    private final MecanumDrive _drive;
 
-    private Servo _armRelease;
+    private final Servo _armRelease;
 
-    private Telemetry _telemetry;
+    private final Telemetry _telemetry;
 
     MotorRampProfile _Joy1X, _Joy1Y, _Joy2X;
     DcMotor _hang0,_hang1;
-    Telemetry.Item T_wall;
 
     public MovementThread(Gamepad gamepad,
                           MecanumDrive drive,
@@ -57,23 +55,18 @@ public class MovementThread extends RobotThread {
     double fine_control = 1.0;
 
     public void run() {
-        //Telemetry.Item hangpos0,hangpos1;
-        //hangpos1 = _telemetry.addData("HP1", 0);
-        //hangpos0 = _telemetry.addData("HP0", 0);
 
         while (!isCancelled()) {
-            //hangpos1.setValue(_hang1.getCurrentPosition());
-            //hangpos0.setValue(_hang0.getCurrentPosition());
             _telemetry.update();
 
 
 
             if (_gamepad.dpad_up) {
                 _hang0.setPower(1);
-                _hang1.setPower(1);
+                _hang1.setPower(-1);
             } else if (_gamepad.dpad_down) {
                 _hang0.setPower(-1);
-                _hang1.setPower(-1);
+                _hang1.setPower(1);
             }
             else {
                 _hang0.setPower(0);

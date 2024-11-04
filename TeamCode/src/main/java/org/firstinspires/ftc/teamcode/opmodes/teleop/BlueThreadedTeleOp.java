@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-//@TeleOp(name = "TeleOp")
+@TeleOp(name = "TeleOp-Blue")
 public class BlueThreadedTeleOp extends ThreadedTeleOp {
-    // TODO figure out how to differentiate blue and red.
+    @Override
+    public Color getColor() {
+        return Color.BLUE;
+    }
 }
