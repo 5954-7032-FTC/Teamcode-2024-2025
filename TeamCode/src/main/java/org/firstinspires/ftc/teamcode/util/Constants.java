@@ -22,7 +22,8 @@ public final class Constants {
     public static final int [] FORWARD_VALUES = new int[]{-1, -1, -1, -1,-1};
     public static final int [] LATERAL_RIGHT_VALUES = new int[]{1,-1,1,-1,1};
     public static final int [] LATERAL_LEFT_VALUES = new int[]{-1,1,-1,1,1};
-    public static final int [] ROTATE_VALUES = new int[]{1,1,-1,-1};
+    public static final int [] ROTATE_VALUES = new int[]{1,1,-1,-1,1};
+    public static final int [] ANTIROTATE_VALUES = new int[]{-1,-1,1,1,-1};
 
     public static final double SPEED_FACTOR =2.0;
     public static final double ROTATION_RATE =1.0;
@@ -47,8 +48,8 @@ public final class Constants {
     // Arm control dead zone section
     public static final double armControlDeadzone = 0.2;
     public static final int HANG_MOVE_DISTANCE = 14000;
-    public static final int SPECIMEN_PREPARE_POSITION = -2900;
-    public static final int SPECIMEN_PLACEMENT_POSITION_END = 1300;
+    public static final int SPECIMEN_PREPARE_POSITION = -2600;
+    public static final int SPECIMEN_PLACEMENT_POSITION_END = 1000;
     public static final class MecanumDrive {
         public static final double ZONE_LATERAL   = 0.2;
         public static final double ZONE_FORWARD   = 0.2;

@@ -16,6 +16,8 @@ public abstract class ThreadedTeleOp extends OpMode {
     ArmControlThread _arm;
     MovementThread _move;
 
+
+
     Telemetry.Item _threadCount;//,_bot_cone;
     RobotDevices robotDevices;
 
@@ -49,6 +51,7 @@ public abstract class ThreadedTeleOp extends OpMode {
                 robotDevices.intakeDistanceSensor, getColor());
 
         _threadCount = telemetry.addData("Threads", Thread.activeCount());
+
 
 
     }

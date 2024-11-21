@@ -91,6 +91,14 @@ public class MecanumDriveByGyro extends MecanumDriveImplementation implements Dr
         driveRobot(distance, Constants.FORWARD_VALUES);
     }
 
+    public void driveRotate(double distance) {
+        driveRobot(distance,Constants.ROTATE_VALUES);
+    }
+
+    public void driveAntiRotate(double distance) {
+        driveRobot(distance,Constants.ANTIROTATE_VALUES);
+    }
+
     @Override
     public void driveLeft(double distance) {
         driveRobot(distance, Constants.LATERAL_LEFT_VALUES);

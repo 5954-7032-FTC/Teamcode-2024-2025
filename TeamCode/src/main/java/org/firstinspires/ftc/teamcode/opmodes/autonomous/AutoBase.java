@@ -76,6 +76,14 @@ public abstract class AutoBase extends LinearOpMode {
         pauseMillis((long)seconds * 1000);
     }
 
+    public void driveRotate(double distanceInches) {
+        _move.driveRotate(distanceInches);
+    }
+
+    public void driveAntiRotate(double distanceInches) {
+        _move.driveRotate(distanceInches);
+    }
+
     public void driveReverse(double distanceInches) {
         _move.driveReverse(distanceInches*Constants.Y_DISTANCE_RATIO);
 

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 
 public class ArmControlThread extends RobotThread {
 
+    private double _bottom;
     private final ArmSubSystem _armSubSystem;
     private final Gamepad _gamepad;
     private final Telemetry.Item _T_colorRed;
@@ -41,6 +42,8 @@ public class ArmControlThread extends RobotThread {
         _armSubSystem = new ArmSubSystem(liftMotors,intake,intakeLift,intakeTilt,
                                          upperLift, lowerLift,colorSensor,distanceSensor);
 
+
+        _bottom = _armSubSystem.getArmPosition0();
         _gamepad = gamepad;
 
         //private final MotorRampProfile _Joy2Y;  //_Joy2X
@@ -89,13 +92,18 @@ public class ArmControlThread extends RobotThread {
 
 
 
-            // Arm up and down
-            if (Math.abs(_gamepad.right_stick_y) > Constants.armControlDeadzone) {
-                _armSubSystem.moveArm(-(_gamepad.right_stick_y*.8));
+            if (_gamepad.y) {
+                // auto move arm to hang height
+                moveArmToPosition(Constants.SPECIMEN_PREPARE_POSITION);
             }
-            else {
-                _armSubSystem.moveArm(0);
-            }
+            else
+                // Arm up and down
+                if (Math.abs(_gamepad.right_stick_y) > Constants.armControlDeadzone) {
+                    _armSubSystem.moveArm(-(_gamepad.right_stick_y*.8));
+                }
+                else {
+                    _armSubSystem.moveArm(0);
+                }
 
 
             //intake lift
@@ -113,9 +121,9 @@ public class ArmControlThread extends RobotThread {
             // lift tilt
 
             if (_gamepad.left_stick_y > 0.8)
-                _armSubSystem.moveIntakeTilt(-0.8);
-            else if (_gamepad.left_stick_y < -0.8)
                 _armSubSystem.moveIntakeTilt(0.8);
+            else if (_gamepad.left_stick_y < -0.8)
+                _armSubSystem.moveIntakeTilt(-0.8);
             else
                 _armSubSystem.moveIntakeTilt(-_gamepad.left_stick_y);
             /*
@@ -160,13 +168,13 @@ public class ArmControlThread extends RobotThread {
                     _T_state.setValue("SETUP");
                     //_armSubSystem.intake(0);
                     // track when we grabbed one
-                    // move arm tilt up for .2 seconds.
+
                     last_time = System.currentTimeMillis();
                     new Thread() {
                         @Override
                         public void run() {
                             super.run();
-                            long end = System.currentTimeMillis() + 350;
+                            long end = System.currentTimeMillis() + 1800;
                             while (System.currentTimeMillis() < end) _armSubSystem.moveIntakeTilt(-.8);
                             _armSubSystem.moveIntakeTilt(0);
                         }
@@ -188,11 +196,32 @@ public class ArmControlThread extends RobotThread {
     }
 
 
+    public void moveArmToPosition(double distance) {
+
+
+        double current_pos = _armSubSystem.getArmPosition0();
+        if (current_pos < _bottom+distance) {
+            while (_armSubSystem.getArmPosition0() < _bottom +distance)
+                _armSubSystem.moveArm(-1.0);
+            _armSubSystem.moveArm(0);
+
+        }
+        else {
+            while (_armSubSystem.getArmPosition0() > _bottom +distance)
+                _armSubSystem.moveArm(1.0);
+            _armSubSystem.moveArm(0);
+        }
+
+
+
+    }
+
+
     private boolean getColor() {
         if (_color == ThreadedTeleOp.Color.BLUE)
             return isBlue() || isYellow();
         if (_color == ThreadedTeleOp.Color.RED)
-            return isBlue() || isYellow();
+            return isRed() || isYellow();
         return false;
     }
     private void do_triggers() {
