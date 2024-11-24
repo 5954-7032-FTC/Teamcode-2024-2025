@@ -47,8 +47,8 @@ public final class Constants {
 
     // Arm control dead zone section
     public static final double armControlDeadzone = 0.2;
-    public static final int HANG_MOVE_DISTANCE = 14000;
-    public static final int SPECIMEN_PREPARE_POSITION = -2600;
+    public static final int HANG_MOVE_DISTANCE = 12000;
+    public static final int SPECIMEN_PREPARE_POSITION = -2200;
     public static final int SPECIMEN_PLACEMENT_POSITION_END = 1000;
     public static final class MecanumDrive {
         public static final double ZONE_LATERAL   = 0.2;

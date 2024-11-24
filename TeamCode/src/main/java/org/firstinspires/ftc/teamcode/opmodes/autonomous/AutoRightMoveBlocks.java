@@ -19,7 +19,7 @@ public class AutoRightMoveBlocks extends AutoBase {
 
 
         // we are in front of blocks
-        driveRight(6);
+        driveRight(5.25);
         driveReverse(36);
         driveForward(28);
         pauseMillis(500);

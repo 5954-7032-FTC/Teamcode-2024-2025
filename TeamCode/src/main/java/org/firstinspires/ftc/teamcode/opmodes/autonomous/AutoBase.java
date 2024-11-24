@@ -120,6 +120,7 @@ public abstract class AutoBase extends LinearOpMode {
         //moveArmToTop();
         moveArmUpToRelativePosition(Constants.SPECIMEN_PREPARE_POSITION);   // position for placement
         driveForward(9);              // drive forward
+        pauseMillis(500);
         moveArmDownToRelativePosition(Constants.SPECIMEN_PLACEMENT_POSITION_END);  // place specimen
         driveReverse(4);            // clear submersible
         moveArmToBottom();

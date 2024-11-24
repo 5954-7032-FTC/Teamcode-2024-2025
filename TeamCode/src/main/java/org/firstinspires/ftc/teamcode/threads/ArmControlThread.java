@@ -147,7 +147,7 @@ public class ArmControlThread extends RobotThread {
                             @Override
                             public void run() {
                                 super.run();
-                                long end = System.currentTimeMillis() +200;
+                                long end = System.currentTimeMillis() +400;
                                 while (System.currentTimeMillis() < end) _armSubSystem.intake(1);//do nothing
                                 _armSubSystem.intake(0);
                             }
